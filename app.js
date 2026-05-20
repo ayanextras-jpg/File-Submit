@@ -1,32 +1,10 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  where,
-  getDocs,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const supabaseUrl = 'https://dmsfwjwnptjdaidgtlwk.supabase.co'
 
+const supabaseKey = 'sb_publishable_LznntFt3RKsczJkidct0rw_ULShcv52'
 
-// YOUR FIREBASE CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyAMW_pyCUW6xDxtE3DXJtHR9bJK-5Dymig",
-  authDomain: "upload-system-c34ed.firebaseapp.com",
-  projectId: "upload-system-c34ed",
-  storageBucket: "upload-system-c34ed.firebasestorage.app",
-  messagingSenderId: "253392821483",
-  appId: "1:253392821483:web:a877fb3cdf4c9709f632ae",
-  measurementId: "G-WLC8Z2MMR2"
-};
-
-
-// INITIALIZE FIREBASE
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 
 // ELEMENTS
@@ -65,7 +43,7 @@ nextBtn.addEventListener("click", async () => {
 
   welcomeUser.innerText = `Welcome ${username}`;
 
-  await loadUserHistory();
+  loadHistory();
 });
 
 
@@ -76,29 +54,56 @@ submitBtn.addEventListener("click", async () => {
   const note = userNote.value.trim();
 
   if (!file) {
-    alert("Please select XLSX file");
+    alert("Please choose XLSX file");
     return;
   }
 
-  messageDiv.innerHTML = "Submitting...";
+  messageDiv.innerHTML = "Uploading...";
 
   try {
 
-    await addDoc(collection(db, "submissions"), {
-      username: currentUsername,
-      fileName: file.name,
-      note: note,
-      status: "Pending",
-      adminNote: "Waiting for review",
-      createdAt: new Date()
-    });
+    const fileName = `${Date.now()}_${file.name}`;
 
-    messageDiv.innerHTML = "Submission successful";
+    // UPLOAD FILE
+    const { error: uploadError } = await supabase.storage
+      .from('uploads')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    // FILE URL
+    const { data } = supabase.storage
+      .from('uploads')
+      .getPublicUrl(fileName);
+
+    const fileURL = data.publicUrl;
+
+    // SAVE DATABASE
+    const { error: dbError } = await supabase
+      .from('submissions')
+      .insert([
+        {
+          username: currentUsername,
+          file_name: file.name,
+          file_url: fileURL,
+          user_note: note,
+          status: 'Pending',
+          admin_note: 'Waiting for review'
+        }
+      ]);
+
+    if (dbError) {
+      throw dbError;
+    }
+
+    messageDiv.innerHTML = "Upload successful";
 
     fileInput.value = "";
     userNote.value = "";
 
-    await loadUserHistory();
+    loadHistory();
 
   } catch (error) {
 
@@ -109,55 +114,59 @@ submitBtn.addEventListener("click", async () => {
 });
 
 
-// LOAD USER HISTORY
-async function loadUserHistory() {
+// LOAD HISTORY
+async function loadHistory() {
 
   historyDiv.innerHTML = "Loading...";
 
-  const q = query(
-    collection(db, "submissions"),
-    where("username", "==", currentUsername),
-    orderBy("createdAt", "desc")
-  );
+  const { data, error } = await supabase
+    .from('submissions')
+    .select('*')
+    .eq('username', currentUsername)
+    .order('created_at', { ascending: false });
 
-  const querySnapshot = await getDocs(q);
+  if (error) {
 
-  totalFiles.innerText = `Total Files Submitted: ${querySnapshot.size}`;
+    historyDiv.innerHTML = "Failed to load";
+
+    return;
+  }
+
+  totalFiles.innerHTML = `Total Files Submitted: ${data.length}`;
 
   historyDiv.innerHTML = "";
 
-  querySnapshot.forEach((doc) => {
-
-    const data = doc.data();
-
-    let statusClass = "status-pending";
-
-    if (data.status === "Approved") {
-      statusClass = "status-approved";
-    }
-
-    if (data.status === "Rejected") {
-      statusClass = "status-rejected";
-    }
+  data.forEach(item => {
 
     historyDiv.innerHTML += `
       <div class="history-card">
-        <h4>${data.fileName}</h4>
 
-        <p><strong>Status:</strong>
-          <span class="${statusClass}">
-            ${data.status}
-          </span>
+        <h4>${item.file_name}</h4>
+
+        <p>
+          <strong>Status:</strong>
+          ${item.status}
         </p>
 
-        <p><strong>Your Note:</strong> ${data.note || "No note"}</p>
+        <p>
+          <strong>Your Note:</strong>
+          ${item.user_note || 'No note'}
+        </p>
 
-        <p><strong>Admin Note:</strong> ${data.adminNote}</p>
+        <p>
+          <strong>Admin Note:</strong>
+          ${item.admin_note}
+        </p>
+
+        <a href="${item.file_url}" target="_blank">
+          Download File
+        </a>
+
       </div>
     `;
   });
 
-  if (querySnapshot.empty) {
+  if (data.length === 0) {
     historyDiv.innerHTML = "No submissions found";
   }
 }
