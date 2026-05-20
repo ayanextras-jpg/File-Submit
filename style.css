@@ -1,0 +1,157 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: #050816;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  color: white;
+}
+
+.background-glow {
+  position: fixed;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(0,255,255,0.25), transparent 70%);
+  top: -200px;
+  right: -150px;
+  z-index: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 550px;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(18px);
+  border-radius: 28px;
+  padding: 35px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  outline: none;
+  font-size: 15px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.hidden {
+  display: none;
+}
+
+.user-box {
+  background: rgba(255,255,255,0.08);
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+#message {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.history-section {
+  margin-top: 35px;
+}
+
+.history-card {
+  background: rgba(255,255,255,0.06);
+  padding: 18px;
+  border-radius: 16px;
+  margin-top: 15px;
+}
+
+.history-card h4 {
+  margin-bottom: 10px;
+}
+
+.status-approved {
+  color: #00ff99;
+}
+
+.status-pending {
+  color: #ffcc00;
+}
+
+.status-rejected {
+  color: #ff4d6d;
+}
+
+@media(max-width: 600px) {
+  .glass-card {
+    padding: 25px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+}

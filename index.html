@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Upload Portal</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+
+  <div class="background-glow"></div>
+
+  <div class="container">
+
+    <div class="glass-card">
+
+      <h1>Premium Upload Portal</h1>
+      <p class="subtitle">Secure XLSX Submission System</p>
+
+      <div id="step1">
+
+        <label>Telegram Username</label>
+        <input type="text" id="username" placeholder="@yourusername" />
+
+        <button id="nextBtn">Next</button>
+
+      </div>
+
+      <div id="step2" class="hidden">
+
+        <div class="user-box">
+          <h3 id="welcomeUser"></h3>
+          <p id="totalFiles"></p>
+        </div>
+
+        <label>Upload XLSX File</label>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" />
+
+        <label>Your Note</label>
+        <textarea id="userNote" placeholder="Write something..."></textarea>
+
+        <button id="submitBtn">Submit File</button>
+
+        <div id="message"></div>
+
+        <div class="history-section">
+          <h2>Your Submission History</h2>
+          <div id="history"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
